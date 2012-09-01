@@ -1,0 +1,45 @@
+#! /usr/bin/env ruby
+
+require "curb"
+require "nokogiri"
+
+def define_word(query)
+  query.gsub(/ /, "20%")
+  html = Curl.get("http://dict.youdao.com/search?q=#{query}").body_str
+  doc = Nokogiri::HTML(html)
+
+  puts "_________________________________"
+  puts "basic:"
+  puts "_________________________________"
+  doc.xpath('//div[@id="phrsListTab"]//ul/li').each do |node|
+    puts node.text
+  end
+
+  nodes = doc.xpath('//div[@id="wordGroup"]/p[@class="wordGroup"]')
+  if nodes
+    puts "_________________________________"
+    puts "phrases:"
+    puts "_________________________________"
+    nodes.each do |node|
+      text = node.text
+      puts text.strip.gsub(/\s+/, " ")
+    end
+  end
+
+  nodes = doc.xpath('//div[@id="synonyms"]/ul')
+  if nodes
+    puts "_________________________________"
+    puts "synonyms:"
+    puts "_________________________________"
+    i = 0
+    children = nodes.children
+    while children[i] do
+      puts children[i].text.strip
+      i += 2
+      puts children[i].text.strip.gsub(/\s+/, ' ')
+      i += 2
+    end
+  end
+end
+
+define_word(ARGV.join(" "))
