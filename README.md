@@ -5,10 +5,10 @@ It's a youdao dictionary extension for alfred.
 
 Prerequisite
 ------------
-Mac
-Alfred + Powerpack
-Growl
-Ruby (nokogiri + curb)
+* Mac
+* Alfred + Powerpack
+* Growl
+* Ruby (nokogiri + curb)
 
 Installation
 ------------
@@ -16,4 +16,4 @@ Double click "YouDao.alfredextension"
 
 Usage
 -----
-? <the word you search>
+    ? <the word you search>
