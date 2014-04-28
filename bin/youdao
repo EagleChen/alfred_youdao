@@ -1,45 +1,76 @@
 #! /usr/bin/env ruby
 
-require "curb"
-require "nokogiri"
+require "net/http"
+require "json"
 
-def define_word(query)
+keyfrom = 'Alfred'
+key = 1963786550
+
+def define_word(query, keyfrom, key)
   query.gsub(/ /, "20%")
-  html = Curl.get("http://dict.youdao.com/search?q=#{query}").body_str
-  doc = Nokogiri::HTML(html)
-
-  puts "_________________________________"
-  puts "basic:"
-  puts "_________________________________"
-  doc.xpath('//div[@id="phrsListTab"]//ul/li').each do |node|
-    puts node.text
-  end
-
-  nodes = doc.xpath('//div[@id="wordGroup"]/p[@class="wordGroup"]')
-  if nodes
-    puts "_________________________________"
-    puts "phrases:"
-    puts "_________________________________"
-    nodes.each do |node|
-      text = node.text
-      puts text.strip.gsub(/\s+/, " ")
+  uri = URI("http://fanyi.youdao.com/openapi.do?keyfrom=#{keyfrom}&key=#{key}&type=data&doctype=json&version=1.1&q=#{query}")
+  begin
+    res = JSON.parse(Net::HTTP.get(uri))
+    index = 0
+    output = []
+    if (res["translation"] && res["translation"][0] != query)
+      item = res["translation"][0]
+      if (res["basic"] and res["basic"]["phonetic"])
+        item = "#{item} [#{res["basic"]["phonetic"]}]"
+      end
+      output << Item.new("#{index}_#{Time.now.to_i}",
+                         item,
+                         item,
+                         "翻译")
     end
-  end
 
-  nodes = doc.xpath('//div[@id="synonyms"]/ul')
-  if nodes
-    puts "_________________________________"
-    puts "synonyms:"
-    puts "_________________________________"
-    i = 0
-    children = nodes.children
-    while children[i] do
-      puts children[i].text.strip
-      i += 2
-      puts children[i].text.strip.gsub(/\s+/, ' ')
-      i += 2
+    if (res["basic"] and res["basic"]["explains"])
+      res["basic"]["explains"].each do |item|
+        output << Item.new("#{index}_#{Time.now.to_i}",
+                           item,
+                           item,
+                           "简明")
+      end
     end
+
+    if (res["web"])
+      res["web"].each do |item|
+        trans = item["value"].join(", ")
+        output << Item.new("#{index}_#{Time.now.to_i}",
+                           trans,
+                           trans,
+                           "网络: #{item["key"]}")
+      end
+
+      if output.size == 0
+        output << Item.new("#{index}_#{Time.now.to_i}",
+                           "FML",
+                           "上网去查吧， 骚年",
+                           "网络: #{item["key"]}")
+      end
+    end
+
+    puts to_XML(output)
+  rescue => e
+    puts "Cannot get the translation"
+puts e.message
+puts e.backtrace
   end
 end
 
-define_word(ARGV.join(" "))
+def to_XML(output)
+  res = output.map { |i| i.to_xml }.join
+  "<items>#{res}</items>"
+end
+
+class Item
+  def initialize(uid, arg, title, subtitle)
+    @uid, @arg, @title, @subtitle = uid, arg, title, subtitle
+  end
+
+  def to_xml
+    "<item uid=\"#{@uid}\" arg=\"#{@arg}\"><title>#{@title}</title><subtitle>#{@subtitle}</subtitle></item>"
+  end
+end
+
+define_word(ARGV.join(" "), keyfrom, key)
