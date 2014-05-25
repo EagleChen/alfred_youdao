@@ -2,47 +2,145 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>action</key>
-	<false/>
-	<key>category</key>
-	<string>SCRIPTS</string>
-	<key>command</key>
-	<string># Youdao extension, 0.0.1
-# USAGE:
-#   ? &lt;word&gt;
-
-source ~/.bash_profile &amp;&amp; `which ruby` bin/youdao {query}</string>
+	<key>bundleid</key>
+	<string></string>
+	<key>connections</key>
+	<dict>
+		<key>BF055CB5-F5A2-4C63-86BF-953787CB27F4</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>DA079D5C-7A4E-431F-BDEF-C701C610D58D</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>DA079D5C-7A4E-431F-BDEF-C701C610D58D</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>FC0D8C73-F6EA-489F-9103-EB0BC851BA1B</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+	</dict>
+	<key>createdby</key>
+	<string>Eagle Chen</string>
+	<key>description</key>
+	<string>tranlation by youdao</string>
 	<key>disabled</key>
 	<false/>
-	<key>escapedollar</key>
-	<true/>
-	<key>escapequery</key>
-	<true/>
-	<key>escapequerybackquotes</key>
-	<true/>
-	<key>escapequerybrackets</key>
-	<true/>
-	<key>escapequeryquotes</key>
-	<true/>
-	<key>escapequerysemicolons</key>
-	<true/>
-	<key>growloutput</key>
-	<true/>
-	<key>growloutputsticky</key>
-	<false/>
-	<key>keyword</key>
-	<string>?</string>
-	<key>logging</key>
-	<false/>
-	<key>multifileargs</key>
-	<false/>
-	<key>parameter</key>
-	<integer>0</integer>
-	<key>silent</key>
-	<true/>
-	<key>subtitle</key>
-	<string>search dict.youdao.com to define the word</string>
-	<key>title</key>
-	<string>Youdao</string>
+	<key>name</key>
+	<string>youdao</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>script</key>
+				<string>bin/add_to_wordbook {query}</string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>DA079D5C-7A4E-431F-BDEF-C701C610D58D</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<true/>
+				<key>output</key>
+				<integer>0</integer>
+				<key>removeextension</key>
+				<false/>
+				<key>sticky</key>
+				<false/>
+				<key>text</key>
+				<string>{query}</string>
+				<key>title</key>
+				<string>Youdao</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>FC0D8C73-F6EA-489F-9103-EB0BC851BA1B</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>keyword</key>
+				<string>?</string>
+				<key>runningsubtext</key>
+				<string>translating...</string>
+				<key>script</key>
+				<string>bin/translate {query}</string>
+				<key>title</key>
+				<string>Youdao Translation</string>
+				<key>type</key>
+				<integer>0</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>BF055CB5-F5A2-4C63-86BF-953787CB27F4</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string>YouDao extension for Alfred
+=============
+
+It's a youdao dictionary extension for alfred.
+
+Installation
+------------
+Double click "YouDao.alfredextension"
+
+Usage
+-----
+    ? &lt;the word you search&gt;</string>
+	<key>uidata</key>
+	<dict>
+		<key>BF055CB5-F5A2-4C63-86BF-953787CB27F4</key>
+		<dict>
+			<key>ypos</key>
+			<real>10</real>
+		</dict>
+		<key>DA079D5C-7A4E-431F-BDEF-C701C610D58D</key>
+		<dict>
+			<key>ypos</key>
+			<real>10</real>
+		</dict>
+		<key>FC0D8C73-F6EA-489F-9103-EB0BC851BA1B</key>
+		<dict>
+			<key>ypos</key>
+			<real>10</real>
+		</dict>
+	</dict>
+	<key>webaddress</key>
+	<string>http://github.com/EagleChen</string>
 </dict>
 </plist>

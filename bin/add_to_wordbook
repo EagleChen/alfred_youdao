@@ -1,0 +1,83 @@
+#! /usr/bin/env ruby
+
+require "net/http"
+require "digest"
+require "json"
+
+USERNAME = "xxx"
+PASSWORD = "raw_password" #password after md5
+PASSWORD = Digest::MD5.hexdigest(PASSWORD.encode('utf-8')) #password after md5
+# for security, you can edit the following line to fill in the encrypted password directly
+# PASSWORD = "yyy" #password after md5
+
+def add_to_wordbook(word)
+  post_uri = URI("https://logindict.youdao.com/login/acc/login")
+  referer = "http://account.youdao.com/login?service=dict&back_url=http://dict.youdao.com/wordbook/wordlist%3Fkeyfrom%3Dnull"
+  user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.137 Safari/537.36"
+  content_type = "application/x-www-form-urlencoded"
+  host = "logindict.youdao.com"
+  origin = "http://account.youdao.com"
+  add_word_uri = URI("http://dict.youdao.com/wordbook/ajax?action=addword&q=#{word}")
+
+  form_data = {
+    "app" => "web",
+    "tp" => "urstoken",
+    "cf" => 3,
+    "fr" => 1,
+    "ru" => "http://dict.youdao.com/wordbook/wordlist?keyfrom=null",
+    "product" => "DICT",
+    "type" => 1,
+    "um" => true,
+    "username" => USERNAME,
+    "password" => PASSWORD
+  }
+
+  # get first cookie
+  res = Net::HTTP.get_response(URI(referer))
+  check_res(res)
+
+  # login
+  req = Net::HTTP::Post.new(post_uri.request_uri)
+  req["Host"] = host
+  req["Origin"] = origin
+  req["Referer"] = referer
+  req["Content-Type"] = content_type
+  req["User-Agent"] = user_agent
+  req["Cookie"] = get_cookie(res)
+
+  req.set_form_data(form_data)
+
+  res = Net::HTTP.start(post_uri.hostname, post_uri.port, :use_ssl => true) do |https|
+    https.request(req)
+  end
+  check_res(res)
+
+  # add word
+  req = Net::HTTP::Post.new(add_word_uri.request_uri)
+  req["User-Agent"] = user_agent
+  req["Cookie"] = get_cookie(res)
+
+  res = Net::HTTP.start(add_word_uri.hostname, add_word_uri.port) do |http|
+    http.request(req)
+  end
+
+  check_res(res)
+
+  puts "add #{word} successfully"
+rescue
+  puts "failed to add #{word}"
+end
+
+def get_cookie(res)
+  res.get_fields("set-cookie").reduce("") do |r, e|
+    r << e.split(";")[0] + "; "
+  end
+end
+
+def check_res(res)
+  unless res.is_a?(Net::HTTPSuccess) || res.is_a?(Net::HTTPRedirection)
+    raise "Failed"
+  end
+end
+
+add_to_wordbook(ARGV.join(" "))

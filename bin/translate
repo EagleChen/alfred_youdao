@@ -1,0 +1,84 @@
+#!/usr/bin/env ruby
+
+require "net/http"
+require "json"
+
+keyfrom = 'Alfred'
+key = 1963786550
+
+def define_word(query, keyfrom, key)
+  query.gsub(/ /, "20%")
+  uri = URI("http://fanyi.youdao.com/openapi.do?keyfrom=#{keyfrom}&key=#{key}&type=data&doctype=json&version=1.1&q=#{query}")
+  begin
+    res = JSON.parse(Net::HTTP.get(uri))
+    index = 0
+    output = []
+    if (res["translation"] && res["translation"][0] != query)
+      item = res["translation"][0]
+      if (res["basic"] and res["basic"]["phonetic"])
+        item = "#{item} [#{res["basic"]["phonetic"]}]"
+      end
+      output << Item.new("#{index}_#{Time.now.to_i}",
+                         item,
+                         item,
+                         "翻译")
+    end
+
+    if (res["basic"] and res["basic"]["explains"])
+      res["basic"]["explains"].each do |b|
+        output << Item.new("#{index}_#{Time.now.to_i}",
+                           b,
+                           b,
+                           "简明")
+      end
+    end
+
+    if (res["web"])
+      res["web"].each do |w|
+        trans = w["value"].join(", ")
+        output << Item.new("#{index}_#{Time.now.to_i}",
+                           trans,
+                           trans,
+                           "网络: #{w["key"]}")
+      end
+
+      if output.size == 0
+        output << Item.new("#{index}_#{Time.now.to_i}",
+                           "FML",
+                           "上网去查吧， 骚年",
+                           "网络: #{item["key"]}")
+      else
+        output.unshift(Item.new(
+          "index_for_add",
+          query,
+          "Add #{query} to wordbook",
+          ""
+        ))
+      end
+    end
+
+    puts to_XML(output)
+  rescue
+    puts to_XML([Item.new("#{index}_#{Time.now.to_i}",
+                          "FML",
+                          "上网去查吧， 骚年",
+                          "网络: #{item["key"]}")])
+  end
+end
+
+def to_XML(output)
+  res = output.map { |i| i.to_xml }.join
+  "<?xml version=\"1.0\"?>\n<items>#{res}</items>"
+end
+
+class Item
+  def initialize(uid, arg, title, subtitle)
+    @uid, @arg, @title, @subtitle = uid, arg, title, subtitle
+  end
+
+  def to_xml
+    "<item uid=\"#{@uid}\" arg=\"#{@arg}\"><title>#{@title}</title><subtitle>#{@subtitle}</subtitle></item>"
+  end
+end
+
+define_word(ARGV.join(" "), keyfrom, key)
