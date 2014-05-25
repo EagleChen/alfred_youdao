@@ -5,7 +5,7 @@ It's a youdao dictionary extension for alfred.
 
 Installation
 ------------
-Double click "youdao.alfredextension"
+Double click "youdao.alfredworkflow"
 
 Usage
 -----
